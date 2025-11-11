@@ -31,6 +31,7 @@ export default function App() {
   const [speed, setSpeed] = useState(INITIAL_SPEED);
   const gameLoop = useRef(null);
   const ballIdCounter = useRef(0);
+  const spawnTimer = useRef(0); // Spawn zamanlayıcı
 
   // Yüksek skoru yükle
   useEffect(() => {
@@ -66,6 +67,7 @@ export default function App() {
     setBalls([]);
     setSpeed(INITIAL_SPEED);
     ballIdCounter.current = 0;
+    spawnTimer.current = 0;
     spawnBall();
   };
 
@@ -78,7 +80,7 @@ export default function App() {
         : null;
 
       // Minimum mesafe kontrolü - en üstteki toptan yeterince uzakta mı?
-      const minSpawnDistance = BALL_SIZE * 2;
+      const minSpawnDistance = BALL_SIZE * 1.5; // Daha az mesafe = daha sık spawn
       if (topMostBall && topMostBall.y < minSpawnDistance) {
         // Çok yakın, spawn etme
         return prevBalls;
@@ -112,7 +114,7 @@ export default function App() {
             // Eğer top yönlendirilmişse, hedefe doğru hareket et
             if (ball.isDirected && ball.targetX !== null) {
               const diff = ball.targetX - ball.x;
-              const moveSpeed = 8; // Yatay hareket hızı
+              const moveSpeed = 80; // Yatay hareket hızı - anında geçiş için çok hızlı
 
               if (Math.abs(diff) > 1) {
                 newX = ball.x + Math.sign(diff) * Math.min(Math.abs(diff), moveSpeed);
@@ -162,8 +164,10 @@ export default function App() {
           return activeBalls;
         });
 
-        // Yeni top spawn zamanı
-        if (Math.random() < 0.02) {
+        // Yeni top spawn zamanı - zamanlayıcı tabanlı (her 40 frame'de bir = ~0.67 saniye)
+        spawnTimer.current++;
+        if (spawnTimer.current >= 40) {
+          spawnTimer.current = 0;
           spawnBall();
         }
       }, 16); // ~60 FPS
