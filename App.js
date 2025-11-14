@@ -264,6 +264,7 @@ export default function App() {
   // Başarımlar state'leri
   const [achievements, setAchievements] = useState({});
   const [unlockedAchievements, setUnlockedAchievements] = useState([]);
+  const [sessionAchievements, setSessionAchievements] = useState([]); // Bu oyun oturumunda kazanılan başarımlar
 
   // Günlük görevler ve ödüller
   const [dailyLoginStreak, setDailyLoginStreak] = useState(0);
@@ -788,21 +789,14 @@ export default function App() {
     }
   };
 
-  // Başarım bildirimi göster
+  // Başarım bildirimi göster (Artık sadece session'a ekliyor, oyun sırasında bildirim göstermiyor)
   const showAchievementToast = (achievement) => {
-    // Eğer aynı başarım zaten gösteriliyorsa, tekrar ekleme
-    setUnlockedAchievements(prev => {
-      const alreadyShowing = prev.find(a => a.id === achievement.id);
-      if (alreadyShowing) return prev;
-
-      // Maksimum 2 bildirim göster (ekranı çok kaplamayalım)
-      const newList = prev.length >= 2 ? [prev[1], achievement] : [...prev, achievement];
-      return newList;
+    // Bu oyun oturumunda kazanılan başarımları sakla
+    setSessionAchievements(prev => {
+      const alreadyAdded = prev.find(a => a.id === achievement.id);
+      if (alreadyAdded) return prev;
+      return [...prev, achievement];
     });
-
-    setTimeout(() => {
-      setUnlockedAchievements(prev => prev.filter(a => a.id !== achievement.id));
-    }, 2500); // 3 saniye yerine 2.5 saniye
   };
 
   // Günlük giriş kontrolü
@@ -989,6 +983,7 @@ export default function App() {
     setSpeed(INITIAL_SPEED);
     ballIdCounter.current = 0;
     spawnTimer.current = 0;
+    setSessionAchievements([]); // Yeni oyun başladığında başarımları temizle
     spawnBall();
   };
 
@@ -2140,6 +2135,22 @@ export default function App() {
             <Text style={styles.coinEarnedText}>💰 +{score} coin kazandınız!</Text>
           </View>
 
+          {/* Kazanılan Başarımlar */}
+          {sessionAchievements.length > 0 && (
+            <View style={styles.achievementsEarnedContainer}>
+              <Text style={styles.achievementsEarnedTitle}>🏆 Kazanılan Başarımlar</Text>
+              {sessionAchievements.map((achievement, index) => (
+                <View key={`${achievement.id}-${index}`} style={styles.achievementEarnedItem}>
+                  <Text style={styles.achievementEarnedIcon}>{achievement.title.split(' ')[0]}</Text>
+                  <View style={styles.achievementEarnedInfo}>
+                    <Text style={styles.achievementEarnedTitle}>{achievement.title}</Text>
+                    <Text style={styles.achievementEarnedDesc}>{achievement.description}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+
           {/* Rewarded Video - Devam Et */}
           {continueUsesToday < 3 && isRewardedAdReady() && (
             <TouchableOpacity
@@ -2217,8 +2228,21 @@ export default function App() {
         )}
       </View>
 
-      {/* Renkli kutular */}
-      <View style={styles.boxContainer}>
+      {/* Banner Reklam - En altta, sadece reklamsız değilse göster */}
+      {!adsRemoved && (
+        <View style={styles.bannerAdContainer}>
+          <AdMobBanner
+            unitId={AD_UNIT_IDS.banner}
+            size={BannerAdSize.BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
+        </View>
+      )}
+
+      {/* Renkli kutular - Banner varsa onun üzerinde, yoksa en altta */}
+      <View style={[styles.boxContainer, !adsRemoved && styles.boxContainerAboveBanner]}>
         {COLORS.map((color, index) => (
           <TouchableOpacity
             key={color.id}
@@ -2238,30 +2262,6 @@ export default function App() {
           </TouchableOpacity>
         ))}
       </View>
-
-      {/* Banner Reklam - Sadece reklamsız değilse göster */}
-      {!adsRemoved && (
-        <View style={styles.bannerAdContainer}>
-          <AdMobBanner
-            unitId={AD_UNIT_IDS.banner}
-            size={BannerAdSize.BANNER}
-            requestOptions={{
-              requestNonPersonalizedAdsOnly: true,
-            }}
-          />
-        </View>
-      )}
-
-      {/* Başarım bildirimleri */}
-      {unlockedAchievements.map((achievement, index) => (
-        <View
-          key={`${achievement.id}-${Date.now()}-${index}`}
-          style={[styles.achievementToast, { top: 80 + index * 70 }]}
-        >
-          <Text style={styles.achievementToastTitle}>🎉 {achievement.title}</Text>
-          <Text style={styles.achievementToastDescription}>{achievement.description}</Text>
-        </View>
-      ))}
     </View>
   );
 }
@@ -2713,13 +2713,20 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
-    elevation: 3,
+    zIndex: 600,
+    elevation: 600,
   },
   boxContainer: {
     flexDirection: 'row',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 10,
-    elevation: 10,
+  },
+  boxContainerAboveBanner: {
+    position: 'absolute',
+    bottom: 50, // Banner yüksekliği kadar (yaklaşık 50px)
+    left: 0,
+    right: 0,
+    zIndex: 500,
+    elevation: 500,
   },
   colorBox: {
     flex: 1,
@@ -3190,6 +3197,46 @@ const styles = StyleSheet.create({
     color: '#FFCC00',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  achievementsEarnedContainer: {
+    backgroundColor: 'rgba(74, 144, 226, 0.2)',
+    borderRadius: 15,
+    padding: 15,
+    marginVertical: 10,
+    width: '100%',
+    maxHeight: 250,
+  },
+  achievementsEarnedTitle: {
+    color: '#4A90E2',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  achievementEarnedItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 8,
+  },
+  achievementEarnedIcon: {
+    fontSize: 28,
+    marginRight: 12,
+  },
+  achievementEarnedInfo: {
+    flex: 1,
+  },
+  achievementEarnedTitle: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  achievementEarnedDesc: {
+    color: '#aaa',
+    fontSize: 12,
+    marginTop: 2,
   },
   continueButton: {
     backgroundColor: '#007AFF',

@@ -1,7 +1,7 @@
 // Monetization Module - Mock Implementation for Expo Go
 // NOTE: react-native-google-mobile-ads requires native build (expo build or EAS)
 // This is a mock implementation for development with Expo Go
-import { Platform, View } from 'react-native';
+import { Platform, View, Text, StyleSheet } from 'react-native';
 
 // Mock Test Ad Unit IDs
 const AD_UNIT_IDS = {
@@ -128,9 +128,14 @@ export const IAP_PRODUCT_IDS = {
   coinPackLarge: 'com.szrgame.colordrop.coins1500',
 };
 
-// Mock Banner Ad Component - Just returns an empty View
-export const AdMobBanner = () => {
-  return View;
+// Mock Banner Ad Component - Returns a visible placeholder for development
+export const AdMobBanner = ({ size }) => {
+  return (
+    <View style={mockStyles.bannerContainer}>
+      <Text style={mockStyles.bannerText}>📱 Banner Reklam (Mock)</Text>
+      <Text style={mockStyles.bannerSubtext}>Gerçek uygulama derlemesinde burada AdMob banner görünecek</Text>
+    </View>
+  );
 };
 
 // Mock BannerAdSize
@@ -141,5 +146,28 @@ export const BannerAdSize = {
   FULL_BANNER: 'fullBanner',
   LEADERBOARD: 'leaderboard',
 };
+
+// Mock styles
+const mockStyles = StyleSheet.create({
+  bannerContainer: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#4a5568',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#718096',
+  },
+  bannerText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  bannerSubtext: {
+    color: '#cbd5e0',
+    fontSize: 9,
+    marginTop: 2,
+  },
+});
 
 export { AD_UNIT_IDS };
