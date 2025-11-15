@@ -1380,29 +1380,22 @@ export default function App() {
 
       // Seçili skin'in renklerini kullan
       const skinColors = getCurrentSkinColors();
-      const randomColorHex = skinColors[Math.floor(Math.random() * skinColors.length)];
+      const randomColorIndex = Math.floor(Math.random() * COLORS.length);
+      const skinColorIndex = randomColorIndex % skinColors.length;
+      const randomColorHex = skinColors[skinColorIndex];
+      const gameColor = COLORS[randomColorIndex];
 
-      // COLORS array'inden eşleşen rengi bul (oyun mekaniği için)
-      const matchingColor = COLORS.find(c => {
-        const skin = SKINS.find(s => s.id === selectedSkin);
-        if (skin && skin.id === 'default') {
-          return c.color === randomColorHex;
-        }
-        return false;
-      });
-
-      // Eğer default skin değilse, renk indexine göre eşleştir
-      const skinColorIndex = skinColors.indexOf(randomColorHex);
-      const gameColor = matchingColor || COLORS[skinColorIndex % COLORS.length];
       const newBall = {
         id: ballIdCounter.current++,
         colorId: gameColor.id,
+        colorIndex: randomColorIndex, // Index ekle
         color: randomColorHex,
         x: Math.random() * (width - BALL_SIZE),
         y: -BALL_SIZE,
         fadeAnim: new Animated.Value(1),
         scaleAnim: new Animated.Value(1),
         targetX: null,
+        targetColorIndex: null, // Index için hedef ekle
         isDirected: false,
       };
 
@@ -1541,6 +1534,7 @@ export default function App() {
             targetX: targetX,
             isDirected: true,
             targetColorId: targetColorId,
+            targetColorIndex: boxIndex, // Index'i de kaydet
           };
         }
         return ball;
@@ -1560,7 +1554,9 @@ export default function App() {
     if (ballBottom >= boxContainerY) {
       // Sadece yönlendirilmiş topları kontrol et
       if (ball.isDirected) {
-        if (ball.colorId === ball.targetColorId) {
+        // Index bazlı eşleştirme (skinler için)
+        const isMatch = ball.colorIndex === ball.targetColorIndex;
+        if (isMatch) {
           // Doğru eşleşme - topu kaybet (kutuya girsin)
           triggerHaptic('success');
           playSound(correctSound);
