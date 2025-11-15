@@ -10,7 +10,6 @@ import {
   Modal,
   ScrollView,
   Switch,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -223,7 +222,14 @@ const SKINS = [
     colors: ['#FF3B30', '#007AFF', '#34C759', '#FFCC00'],
     isPremium: false,
     coinPrice: 0,
-    emoji: '🔵'
+    emoji: '🔵',
+    theme: {
+      background: '#1A1A2E',
+      boxBackground: '#2C2C3E',
+      boxBorder: '#3C3C4E',
+      scoreColor: '#FFFFFF',
+      accentColor: '#007AFF'
+    }
   },
   {
     id: 'neon',
@@ -231,7 +237,14 @@ const SKINS = [
     colors: ['#FF00FF', '#00FFFF', '#FFFF00', '#FF0080'],
     isPremium: false,
     coinPrice: 100,
-    emoji: '💎'
+    emoji: '💎',
+    theme: {
+      background: '#0A0A14',
+      boxBackground: '#1A1A28',
+      boxBorder: '#2A2A38',
+      scoreColor: '#00FFFF',
+      accentColor: '#FF00FF'
+    }
   },
   {
     id: 'pastel',
@@ -239,23 +252,44 @@ const SKINS = [
     colors: ['#FFB3BA', '#BAFFC9', '#BAE1FF', '#FFFFBA'],
     isPremium: false,
     coinPrice: 150,
-    emoji: '🌸'
+    emoji: '🌸',
+    theme: {
+      background: '#FFF0F5',
+      boxBackground: '#FFE0E9',
+      boxBorder: '#FFC0CB',
+      scoreColor: '#6B4C5A',
+      accentColor: '#E85D75'
+    }
   },
   {
     id: 'dark',
     name: 'Karanlık',
-    colors: ['#1A1A2E', '#16213E', '#0F3460', '#533483'],
+    colors: ['#3A3A5E', '#4A5A7E', '#2F6AB0', '#7A6AC3'],
     isPremium: true,
     coinPrice: 200,
-    emoji: '🌙'
+    emoji: '🌙',
+    theme: {
+      background: '#0A0A14',
+      boxBackground: '#1A1A2E',
+      boxBorder: '#2A2A3E',
+      scoreColor: '#AAAACC',
+      accentColor: '#7A6AC3'
+    }
   },
   {
     id: 'rainbow',
     name: 'Gökkuşağı',
-    colors: ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'],
+    colors: ['#FF3030', '#FF9F30', '#FFFF30', '#30FF30', '#3080FF', '#7B30C2', '#B430F3'],
     isPremium: true,
     coinPrice: 250,
-    emoji: '🌈'
+    emoji: '🌈',
+    theme: {
+      background: '#1A0A2A',
+      boxBackground: '#2A1A3A',
+      boxBorder: '#3A2A4A',
+      scoreColor: '#FFFF30',
+      accentColor: '#FF9F30'
+    }
   },
   {
     id: 'ocean',
@@ -263,7 +297,14 @@ const SKINS = [
     colors: ['#006994', '#0EA5E9', '#22D3EE', '#67E8F9'],
     isPremium: false,
     coinPrice: 120,
-    emoji: '🌊'
+    emoji: '🌊',
+    theme: {
+      background: '#001F3F',
+      boxBackground: '#003366',
+      boxBorder: '#004080',
+      scoreColor: '#67E8F9',
+      accentColor: '#0EA5E9'
+    }
   },
   {
     id: 'sunset',
@@ -271,15 +312,29 @@ const SKINS = [
     colors: ['#FF6B35', '#F7931E', '#FDC830', '#F37335'],
     isPremium: false,
     coinPrice: 130,
-    emoji: '🌅'
+    emoji: '🌅',
+    theme: {
+      background: '#2A1810',
+      boxBackground: '#3A2820',
+      boxBorder: '#4A3830',
+      scoreColor: '#FDC830',
+      accentColor: '#FF6B35'
+    }
   },
   {
     id: 'forest',
     name: 'Orman',
-    colors: ['#2D5016', '#3D7C47', '#52B788', '#74C69D'],
+    colors: ['#4D7C3F', '#5D9C57', '#6DBC78', '#8DD69D'],
     isPremium: false,
     coinPrice: 140,
-    emoji: '🌲'
+    emoji: '🌲',
+    theme: {
+      background: '#0F1F0A',
+      boxBackground: '#1F2F1A',
+      boxBorder: '#2F3F2A',
+      scoreColor: '#8DD69D',
+      accentColor: '#6DBC78'
+    }
   },
   {
     id: 'candy',
@@ -287,15 +342,29 @@ const SKINS = [
     colors: ['#FF69B4', '#FF1493', '#FFB6C1', '#FFC0CB'],
     isPremium: true,
     coinPrice: 180,
-    emoji: '🍬'
+    emoji: '🍬',
+    theme: {
+      background: '#3A0A2A',
+      boxBackground: '#4A1A3A',
+      boxBorder: '#5A2A4A',
+      scoreColor: '#FFC0CB',
+      accentColor: '#FF69B4'
+    }
   },
   {
     id: 'galaxy',
     name: 'Galaksi',
-    colors: ['#2E0854', '#5B0A91', '#8B00FF', '#9D4EDD'],
+    colors: ['#5E1A84', '#7B2AB1', '#9B4AFF', '#B86EDD'],
     isPremium: true,
     coinPrice: 220,
-    emoji: '🌌'
+    emoji: '🌌',
+    theme: {
+      background: '#0A0014',
+      boxBackground: '#1A0A24',
+      boxBorder: '#2A1A34',
+      scoreColor: '#B86EDD',
+      accentColor: '#9B4AFF'
+    }
   },
 ];
 
@@ -411,7 +480,13 @@ export default function App() {
   });
   const [activePowerup, setActivePowerup] = useState(null);
   const [shieldActive, setShieldActive] = useState(false);
+  const shieldActiveRef = useRef(false); // Shield'ın gerçek zamanlı durumu
+  const shieldUsedBallsRef = useRef(new Set()); // Shield ile kaldırılan topların ID'lerini sakla
   const powerupTimeoutRef = useRef(null);
+  const [powerupPurchasePopup, setPowerupPurchasePopup] = useState({ visible: false, message: '' });
+  const powerupPopupTimeoutRef = useRef(null);
+  const [shopPurchasePopup, setShopPurchasePopup] = useState({ visible: false, message: '' });
+  const shopPopupTimeoutRef = useRef(null);
 
   const gameLoop = useRef(null);
   const ballIdCounter = useRef(0);
@@ -728,6 +803,21 @@ export default function App() {
     }
   };
 
+  // Popup gösterme helper fonksiyonu (1 saniye sonra otomatik kapanır)
+  const showShopPopup = (message) => {
+    setShopPurchasePopup({ visible: true, message });
+
+    // Önceki timer'ı temizle
+    if (shopPopupTimeoutRef.current) {
+      clearTimeout(shopPopupTimeoutRef.current);
+    }
+
+    // 1 saniye sonra otomatik kapat
+    shopPopupTimeoutRef.current = setTimeout(() => {
+      setShopPurchasePopup({ visible: false, message: '' });
+    }, 1000);
+  };
+
   // Skin satın alma fonksiyonu
   const buySkin = async (skinId) => {
     const skin = SKINS.find(s => s.id === skinId);
@@ -735,19 +825,19 @@ export default function App() {
 
     // Zaten sahipse
     if (ownedSkins.includes(skinId)) {
-      Alert.alert('Zaten Sahipsin', 'Bu skine zaten sahipsin.');
+      showShopPopup('Bu skine zaten sahipsin');
       return;
     }
 
     // Premium kontrol
     if (skin.isPremium && !premiumSkinsOwned) {
-      Alert.alert('Premium Gerekli', 'Bu skin için Premium Skin Paketi satın almalısınız.');
+      showShopPopup('Premium Skin Paketi gerekli');
       return;
     }
 
     // Coin kontrol
     if (coins < skin.coinPrice) {
-      Alert.alert('Yetersiz Coin', `Bu skin için ${skin.coinPrice} coin gerekli. Şu an ${coins} coinin var.`);
+      showShopPopup(`${skin.coinPrice} coin gerekli`);
       return;
     }
 
@@ -762,14 +852,14 @@ export default function App() {
 
       triggerHaptic('success');
       playSound(clickSound);
-      Alert.alert('Başarılı!', `${skin.name} skini satın alındı ve seçildi!`);
+      showShopPopup(`${skin.name} satın alındı! ✅`);
     }
   };
 
   // Skin seçme fonksiyonu
   const selectSkin = async (skinId) => {
     if (!ownedSkins.includes(skinId)) {
-      Alert.alert('Hata', 'Bu skine sahip değilsin.');
+      showShopPopup('Bu skine sahip değilsin');
       return;
     }
 
@@ -784,7 +874,7 @@ export default function App() {
     if (!powerup) return;
 
     if (coins < powerup.coinPrice) {
-      Alert.alert('Yetersiz Coin', `${powerup.coinPrice} coin gerekli. Şu an ${coins} coinin var.`);
+      showShopPopup(`${powerup.coinPrice} coin gerekli`);
       return;
     }
 
@@ -798,7 +888,19 @@ export default function App() {
 
       triggerHaptic('success');
       playSound(clickSound);
-      Alert.alert('Başarılı!', `${powerup.name} satın alındı!`);
+
+      // Custom popup göster - 1 saniye sonra otomatik kapat
+      setPowerupPurchasePopup({ visible: true, message: `${powerup.name} satın alındı!` });
+
+      // Önceki timer'ı temizle
+      if (powerupPopupTimeoutRef.current) {
+        clearTimeout(powerupPopupTimeoutRef.current);
+      }
+
+      // 1 saniye sonra otomatik kapat
+      powerupPopupTimeoutRef.current = setTimeout(() => {
+        setPowerupPurchasePopup({ visible: false, message: '' });
+      }, 1000);
     }
   };
 
@@ -808,13 +910,13 @@ export default function App() {
     if (!powerup) return;
 
     if (powerupInventory[powerupId] <= 0) {
-      Alert.alert('Power-up Yok', 'Bu power-up\'tan envanterde yok.');
+      showShopPopup('Envanterde yok');
       return;
     }
 
     // Shield için activePowerup kontrolü yapma (çünkü shield sürekli aktif değil)
     if (powerup.effect !== 'shield' && activePowerup !== null) {
-      Alert.alert('Power-up Aktif', 'Zaten bir power-up aktif. Bitmesini bekle.');
+      showShopPopup('Zaten bir power-up aktif');
       return;
     }
 
@@ -839,6 +941,7 @@ export default function App() {
       }, powerup.duration);
     } else if (powerup.effect === 'shield') {
       setShieldActive(true);
+      shieldActiveRef.current = true; // Ref'i de set et
       triggerHaptic('medium');
       playSound(clickSound);
     } else if (powerup.effect === 'freeze') {
@@ -859,6 +962,12 @@ export default function App() {
   const getCurrentSkinColors = () => {
     const skin = SKINS.find(s => s.id === selectedSkin);
     return skin ? skin.colors : SKINS[0].colors;
+  };
+
+  // Seçili skin'in temasını al
+  const getCurrentSkinTheme = () => {
+    const skin = SKINS.find(s => s.id === selectedSkin);
+    return skin ? skin.theme : SKINS[0].theme;
   };
 
   // Monetizasyon başlatma
@@ -894,7 +1003,7 @@ export default function App() {
       // Satın alma başarılı
       if (productId === IAP_PRODUCT_IDS.removeAds) {
         setAdsRemoved(true);
-        Alert.alert('Başarılı!', 'Reklamlar kaldırıldı! 🎉');
+        showShopPopup('Reklamlar kaldırıldı! 🎉');
       } else if (productId === IAP_PRODUCT_IDS.premiumSkins) {
         setPremiumSkinsOwned(true);
 
@@ -903,7 +1012,7 @@ export default function App() {
         const newOwnedSkins = [...new Set([...ownedSkins, ...premiumSkinIds])];
         await saveOwnedSkinsToStorage(newOwnedSkins);
 
-        Alert.alert('Başarılı!', 'Premium skin paketi açıldı! Tüm premium skinler açıldı! 🎨');
+        showShopPopup('Premium skin paketi açıldı! 🎨');
       } else if (productId === IAP_PRODUCT_IDS.powerUpPack) {
         // Power-up paketi: 5 Slow Motion + 5 Shield + 5 Freeze
         const newInventory = {
@@ -913,22 +1022,22 @@ export default function App() {
           freeze: (powerupInventory.freeze || 0) + 5,
         };
         await savePowerupInventory(newInventory);
-        Alert.alert('Başarılı!', 'Power-up paketi açıldı! 5 Yavaş Çekim + 5 Kalkan + 5 Dondur eklendi! ⚡');
+        showShopPopup('Power-up paketi açıldı! ⚡');
       } else if (productId === IAP_PRODUCT_IDS.coinPackSmall) {
         await addCoins(100);
-        Alert.alert('Başarılı!', '100 coin kazandınız! 💰');
+        showShopPopup('100 coin kazandınız! 💰');
       } else if (productId === IAP_PRODUCT_IDS.coinPackMedium) {
         await addCoins(600);
-        Alert.alert('Başarılı!', '600 coin kazandınız! 💰');
+        showShopPopup('600 coin kazandınız! 💰');
       } else if (productId === IAP_PRODUCT_IDS.coinPackLarge) {
         await addCoins(1500);
-        Alert.alert('Başarılı!', '1500 coin kazandınız! 💰');
+        showShopPopup('1500 coin kazandınız! 💰');
       }
 
       triggerHaptic('success');
       playSound(correctSound);
     } catch (error) {
-      Alert.alert('Hata', 'Satın alma başarısız oldu. Lütfen tekrar deneyin.');
+      showShopPopup('Satın alma başarısız');
       console.error('Purchase error:', error);
     } finally {
       setIapLoading(false);
@@ -954,13 +1063,13 @@ export default function App() {
           await saveOwnedSkinsToStorage(newOwnedSkins);
         }
 
-        Alert.alert('Başarılı!', 'Satın almalarınız geri yüklendi! ✅');
+        showShopPopup('Satın almalar geri yüklendi! ✅');
         triggerHaptic('success');
       } else {
-        Alert.alert('Bilgi', 'Geri yüklenecek satın alma bulunamadı.');
+        showShopPopup('Geri yüklenecek satın alma yok');
       }
     } catch (error) {
-      Alert.alert('Hata', 'Satın almalar geri yüklenemedi.');
+      showShopPopup('Geri yükleme başarısız');
       console.error('Restore error:', error);
     } finally {
       setIapLoading(false);
@@ -970,12 +1079,12 @@ export default function App() {
   // Rewarded video ile devam etme
   const handleContinueWithAd = () => {
     if (continueUsesToday >= 3) {
-      Alert.alert('Limit Aşıldı', 'Bugün için devam etme hakkınız bitti. Yarın tekrar deneyin! 🕐');
+      showShopPopup('Günlük limit aşıldı 🕐');
       return;
     }
 
     if (!isRewardedAdReady()) {
-      Alert.alert('Reklam Hazır Değil', 'Lütfen birkaç saniye bekleyin...');
+      showShopPopup('Reklam hazır değil...');
       return;
     }
 
@@ -988,19 +1097,19 @@ export default function App() {
         setGameState('playing');
         triggerHaptic('success');
       } else {
-        Alert.alert('İptal', 'Reklam izlenmedi, oyuna devam edilemedi.');
+        showShopPopup('Reklam izlenmedi');
       }
     });
 
     if (!success) {
-      Alert.alert('Hata', 'Reklam gösterilemedi. Lütfen tekrar deneyin.');
+      showShopPopup('Reklam gösterilemedi');
     }
   };
 
   // Rewarded video ile coin kazanma
   const handleWatchAdForCoins = () => {
     if (!isRewardedAdReady()) {
-      Alert.alert('Reklam Hazır Değil', 'Lütfen birkaç saniye bekleyin...');
+      showShopPopup('Reklam hazır değil...');
       return;
     }
 
@@ -1009,12 +1118,12 @@ export default function App() {
         addCoins(25);
         triggerHaptic('success');
         playSound(correctSound);
-        Alert.alert('Harika!', '25 coin kazandınız! 💰');
+        showShopPopup('25 coin kazandınız! 💰');
       }
     });
 
     if (!success) {
-      Alert.alert('Hata', 'Reklam gösterilemedi.');
+      showShopPopup('Reklam gösterilemedi');
     }
   };
 
@@ -1326,6 +1435,9 @@ export default function App() {
     setSpeed(INITIAL_SPEED);
     ballIdCounter.current = 0;
     spawnTimer.current = 0;
+    shieldUsedBallsRef.current.clear(); // Shield referansını temizle
+    setShieldActive(false); // Shield'ı deaktif et
+    shieldActiveRef.current = false; // Shield ref'ini de sıfırla
     setSessionAchievements([]); // Yeni oyun başladığında başarımları temizle
     spawnBall();
   };
@@ -1547,6 +1659,11 @@ export default function App() {
     // onLayout ile ölçülmüş GERÇEK pozisyonu kullan
     if (boxContainerY === null) return false;
 
+    // Shield ile zaten işaretlenmiş bir top mu kontrol et
+    if (shieldUsedBallsRef.current.has(ball.id)) {
+      return false; // Bu topu tekrar kontrol etme
+    }
+
     // Topun alt hizasını hesapla
     const ballBottom = ball.y + BALL_SIZE;
 
@@ -1602,9 +1719,11 @@ export default function App() {
         } else {
           // Yanlış eşleşme - Game Over
           // Shield kontrolü
-          if (shieldActive) {
+          if (shieldActiveRef.current) {
             // Shield kullanıldı, oyun bitmesin, topu kaldır
             setShieldActive(false);
+            shieldActiveRef.current = false;
+            shieldUsedBallsRef.current.add(ball.id); // Bu topu işaretle
             triggerHaptic('warning');
             playSound(clickSound);
 
@@ -1617,6 +1736,7 @@ export default function App() {
 
             setTimeout(() => {
               setBalls((prev) => prev.filter((b) => b.id !== ball.id));
+              shieldUsedBallsRef.current.delete(ball.id); // Temizle
             }, 200);
 
             // Shield kullanıldı - ekranda gösterge zaten var
@@ -1632,9 +1752,11 @@ export default function App() {
         }
       } else {
         // Yönlendirilmemiş top kutuya ulaştı - Game Over
-        if (shieldActive) {
+        if (shieldActiveRef.current) {
           // Shield kullanıldı
           setShieldActive(false);
+          shieldActiveRef.current = false;
+          shieldUsedBallsRef.current.add(ball.id); // Bu topu işaretle
           triggerHaptic('warning');
           playSound(clickSound);
 
@@ -1646,6 +1768,7 @@ export default function App() {
 
           setTimeout(() => {
             setBalls((prev) => prev.filter((b) => b.id !== ball.id));
+            shieldUsedBallsRef.current.delete(ball.id); // Temizle
           }, 200);
 
           return true;
@@ -1893,6 +2016,8 @@ export default function App() {
 
   // Power-ups ekranı
   if (gameState === 'powerups') {
+    const currentTheme = getCurrentSkinTheme();
+
     return (
       <View style={styles.container}>
         <StatusBar style="light" />
@@ -1976,6 +2101,23 @@ export default function App() {
             </View>
           </ScrollView>
         </View>
+
+        {/* Power-up Satın Alma Popup */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={powerupPurchasePopup.visible}
+          onRequestClose={() => setPowerupPurchasePopup({ visible: false, message: '' })}
+        >
+          <View style={styles.popupOverlay}>
+            <View style={[styles.popupContainer, { backgroundColor: currentTheme.accentColor }]}>
+              <Text style={styles.popupIcon}>✅</Text>
+              <Text style={[styles.popupMessage, { color: currentTheme.scoreColor }]}>
+                {powerupPurchasePopup.message}
+              </Text>
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -2137,6 +2279,8 @@ export default function App() {
 
   // Mağaza ekranı
   if (gameState === 'store') {
+    const currentTheme = getCurrentSkinTheme();
+
     return (
       <View style={styles.container}>
         <StatusBar style="light" />
@@ -2364,6 +2508,23 @@ export default function App() {
             <View style={{ height: 40 }} />
           </ScrollView>
         </View>
+
+        {/* Mağaza Popup */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={shopPurchasePopup.visible}
+          onRequestClose={() => setShopPurchasePopup({ visible: false, message: '' })}
+        >
+          <View style={styles.popupOverlay}>
+            <View style={[styles.popupContainer, { backgroundColor: currentTheme.accentColor }]}>
+              <Text style={styles.popupIcon}>✅</Text>
+              <Text style={[styles.popupMessage, { color: currentTheme.scoreColor }]}>
+                {shopPurchasePopup.message}
+              </Text>
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -2777,76 +2938,84 @@ export default function App() {
         {/* Ayarlar Modal */}
         <SettingsModal />
 
-        <View style={styles.gameOverContainer}>
-          <Text style={styles.gameOverTitle}>Oyun Bitti!</Text>
+        <ScrollView
+          style={styles.gameOverScrollView}
+          contentContainerStyle={styles.gameOverScrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.gameOverContainer}>
+            <Text style={styles.gameOverTitle}>Oyun Bitti!</Text>
 
-          <View style={styles.scoreCard}>
-            <Text style={styles.finalScoreLabel}>Skorun</Text>
-            <Text style={styles.finalScoreValue}>{score}</Text>
+            <View style={styles.scoreCard}>
+              <Text style={styles.finalScoreLabel}>Skorun</Text>
+              <Text style={styles.finalScoreValue}>{score}</Text>
 
-            {score >= highScore && score > 0 && (
-              <Text style={styles.newRecordText}>🎉 YENİ REKOR!</Text>
+              {score >= highScore && score > 0 && (
+                <Text style={styles.newRecordText}>🎉 YENİ REKOR!</Text>
+              )}
+
+              <View style={styles.divider} />
+
+              <Text style={styles.bestScoreLabel}>En İyi Skorun</Text>
+              <Text style={styles.bestScoreValue}>{highScore}</Text>
+            </View>
+
+            {/* Coin kazanma bilgisi */}
+            <View style={styles.coinEarnedInfo}>
+              <Text style={styles.coinEarnedText}>💰 +{score} coin kazandınız!</Text>
+            </View>
+
+            {/* Kazanılan Başarımlar */}
+            {sessionAchievements.length > 0 && (
+              <View style={styles.achievementsEarnedContainer}>
+                <Text style={styles.achievementsEarnedTitle}>🏆 Kazanılan Başarımlar</Text>
+                {sessionAchievements.map((achievement, index) => (
+                  <View key={`${achievement.id}-${index}`} style={styles.achievementEarnedItem}>
+                    <Text style={styles.achievementEarnedIcon}>{achievement.title.split(' ')[0]}</Text>
+                    <View style={styles.achievementEarnedInfo}>
+                      <Text style={styles.achievementEarnedTitle}>{achievement.title}</Text>
+                      <Text style={styles.achievementEarnedDesc}>{achievement.description}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
             )}
 
-            <View style={styles.divider} />
+            {/* Rewarded Video - Devam Et */}
+            {continueUsesToday < 3 && isRewardedAdReady() && (
+              <TouchableOpacity
+                style={styles.continueButton}
+                onPress={handleContinueWithAd}
+              >
+                <Text style={styles.continueButtonText}>📺 Reklam İzle ve Devam Et</Text>
+                <Text style={styles.continueButtonSubtext}>({3 - continueUsesToday} hak kaldı)</Text>
+              </TouchableOpacity>
+            )}
 
-            <Text style={styles.bestScoreLabel}>En İyi Skorun</Text>
-            <Text style={styles.bestScoreValue}>{highScore}</Text>
-          </View>
-
-          {/* Coin kazanma bilgisi */}
-          <View style={styles.coinEarnedInfo}>
-            <Text style={styles.coinEarnedText}>💰 +{score} coin kazandınız!</Text>
-          </View>
-
-          {/* Kazanılan Başarımlar */}
-          {sessionAchievements.length > 0 && (
-            <View style={styles.achievementsEarnedContainer}>
-              <Text style={styles.achievementsEarnedTitle}>🏆 Kazanılan Başarımlar</Text>
-              {sessionAchievements.map((achievement, index) => (
-                <View key={`${achievement.id}-${index}`} style={styles.achievementEarnedItem}>
-                  <Text style={styles.achievementEarnedIcon}>{achievement.title.split(' ')[0]}</Text>
-                  <View style={styles.achievementEarnedInfo}>
-                    <Text style={styles.achievementEarnedTitle}>{achievement.title}</Text>
-                    <Text style={styles.achievementEarnedDesc}>{achievement.description}</Text>
-                  </View>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {/* Rewarded Video - Devam Et */}
-          {continueUsesToday < 3 && isRewardedAdReady() && (
-            <TouchableOpacity
-              style={styles.continueButton}
-              onPress={handleContinueWithAd}
-            >
-              <Text style={styles.continueButtonText}>📺 Reklam İzle ve Devam Et</Text>
-              <Text style={styles.continueButtonSubtext}>({3 - continueUsesToday} hak kaldı)</Text>
+            <TouchableOpacity style={styles.restartButton} onPress={startGame}>
+              <Text style={styles.restartButtonText}>🔄 Tekrar Oyna</Text>
             </TouchableOpacity>
-          )}
 
-          <TouchableOpacity style={styles.restartButton} onPress={startGame}>
-            <Text style={styles.restartButtonText}>🔄 Tekrar Oyna</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.menuButton}
-            onPress={() => {
-              triggerHaptic('light');
-              setGameState('menu');
-            }}
-          >
-            <Text style={styles.menuButtonText}>Ana Menü</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => {
+                triggerHaptic('light');
+                setGameState('menu');
+              }}
+            >
+              <Text style={styles.menuButtonText}>Ana Menü</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
     );
   }
 
   // Oyun ekranı
+  const currentTheme = getCurrentSkinTheme();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: currentTheme.background }]}>
       <StatusBar style="light" />
 
       {/* Ayarlar Modal */}
@@ -2856,12 +3025,12 @@ export default function App() {
       <View style={styles.scoreBar}>
         <View style={styles.scoreItemsContainer}>
           <View style={styles.scoreItem}>
-            <Text style={styles.scoreLabel}>SKOR</Text>
-            <Text style={styles.scoreValue}>{score}</Text>
+            <Text style={[styles.scoreLabel, { color: currentTheme.scoreColor }]}>SKOR</Text>
+            <Text style={[styles.scoreValue, { color: currentTheme.accentColor }]}>{score}</Text>
           </View>
           <View style={styles.scoreItem}>
-            <Text style={styles.scoreLabel}>REKOR</Text>
-            <Text style={styles.scoreValue}>{highScore}</Text>
+            <Text style={[styles.scoreLabel, { color: currentTheme.scoreColor }]}>REKOR</Text>
+            <Text style={[styles.scoreValue, { color: currentTheme.accentColor }]}>{highScore}</Text>
           </View>
         </View>
 
@@ -2887,36 +3056,21 @@ export default function App() {
               key={powerup.id}
               style={[
                 styles.powerupGameButton,
+                { backgroundColor: isDisabled ? currentTheme.boxBackground : currentTheme.accentColor },
                 isDisabled && styles.powerupGameButtonDisabled
               ]}
               onPress={() => usePowerup(powerup.id)}
               disabled={isDisabled}
             >
               <Text style={styles.powerupGameEmoji}>{powerup.emoji}</Text>
-              <Text style={styles.powerupGameCount}>{inventory}</Text>
+              <Text style={[styles.powerupGameCount, { color: currentTheme.scoreColor }]}>{inventory}</Text>
             </TouchableOpacity>
           );
         })}
       </View>
 
-      {/* Aktif power-up göstergesi */}
-      {activePowerup && (
-        <View style={styles.activePowerupIndicator}>
-          <Text style={styles.activePowerupText}>
-            {POWERUPS.find(p => p.effect === activePowerup)?.emoji} AKTİF
-          </Text>
-        </View>
-      )}
-
-      {/* Shield göstergesi */}
-      {shieldActive && (
-        <View style={styles.shieldIndicator}>
-          <Text style={styles.shieldIndicatorText}>🛡️ Kalkan Aktif</Text>
-        </View>
-      )}
-
       {/* Oyun alanı */}
-      <View style={styles.gameArea}>
+      <View style={[styles.gameArea, { backgroundColor: currentTheme.background }]}>
         {balls.map((ball) => (
           <Ball key={ball.id} ball={ball} />
         ))}
@@ -2927,8 +3081,8 @@ export default function App() {
         {/* Countdown overlay */}
         {countdown > 0 && (
           <View style={styles.countdownOverlay}>
-            <Text style={styles.countdownText}>{countdown}</Text>
-            <Text style={styles.countdownSubtext}>Hazırlan!</Text>
+            <Text style={[styles.countdownText, { color: currentTheme.accentColor }]}>{countdown}</Text>
+            <Text style={[styles.countdownSubtext, { color: currentTheme.scoreColor }]}>Hazırlan!</Text>
           </View>
         )}
       </View>
@@ -2948,7 +3102,11 @@ export default function App() {
 
       {/* Renkli kutular - Banner varsa onun üzerinde, yoksa en altta */}
       <View
-        style={[styles.boxContainer, !adsRemoved && styles.boxContainerAboveBanner]}
+        style={[
+          styles.boxContainer,
+          !adsRemoved && styles.boxContainerAboveBanner,
+          { backgroundColor: currentTheme.boxBackground }
+        ]}
         onLayout={(event) => {
           const { y } = event.nativeEvent.layout;
           // scoreBar absolute (95px) olduğu için gameArea koordinatlarına çevir
@@ -2965,7 +3123,14 @@ export default function App() {
           return (
             <TouchableOpacity
               key={color.id}
-              style={[styles.colorBox, { backgroundColor: boxColor }]}
+              style={[
+                styles.colorBox,
+                {
+                  backgroundColor: boxColor,
+                  borderWidth: 2,
+                  borderColor: currentTheme.boxBorder
+                }
+              ]}
               activeOpacity={0.7}
               onPress={() => {
                 const closestBall = balls
@@ -2981,6 +3146,43 @@ export default function App() {
           );
         })}
       </View>
+
+      {/* Power-up Satın Alma Popup */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={powerupPurchasePopup.visible}
+        onRequestClose={() => setPowerupPurchasePopup({ visible: false, message: '' })}
+      >
+        <View style={styles.popupOverlay}>
+          <View style={[styles.popupContainer, { backgroundColor: currentTheme.accentColor }]}>
+            <Text style={styles.popupIcon}>✅</Text>
+            <Text style={[styles.popupMessage, { color: currentTheme.scoreColor }]}>
+              {powerupPurchasePopup.message}
+            </Text>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Şeffaf Overlay - Power-up Göstergeleri için */}
+      {(activePowerup || shieldActive) && (
+        <View style={styles.powerupIndicatorOverlay} pointerEvents="none">
+          <View style={styles.powerupIndicatorContainer}>
+            {activePowerup && (
+              <View style={[styles.powerupIndicator, { backgroundColor: currentTheme.accentColor }]}>
+                <Text style={[styles.powerupIndicatorText, { color: currentTheme.scoreColor }]}>
+                  {POWERUPS.find(p => p.effect === activePowerup)?.emoji} AKTİF
+                </Text>
+              </View>
+            )}
+            {shieldActive && (
+              <View style={[styles.powerupIndicator, { backgroundColor: currentTheme.accentColor }]}>
+                <Text style={[styles.powerupIndicatorText, { color: currentTheme.scoreColor }]}>🛡️ Kalkan Aktif</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -3262,8 +3464,15 @@ const styles = StyleSheet.create({
     color: '#aaa',
     marginBottom: 5,
   },
-  gameOverContainer: {
+  gameOverScrollView: {
     flex: 1,
+  },
+  gameOverScrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingVertical: 20,
+  },
+  gameOverContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -3390,7 +3599,6 @@ const styles = StyleSheet.create({
   },
   gameArea: {
     flex: 1,
-    backgroundColor: '#16213e',
     zIndex: 1,
     elevation: 1,
   },
@@ -4386,9 +4594,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     marginTop: 125, // scoreBar yüksekliği kadar boşluk + biraz daha
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'transparent', // Şeffaf yaptık ki hem butonlar hem aktif göstergeler görünsün
     zIndex: 1050, // scoreBar'ın altında ama topların üstünde
     elevation: 1050,
+    overflow: 'visible', // Göstergelerin container dışında da görünmesine izin ver
   },
   powerupGameButton: {
     backgroundColor: '#3498DB',
@@ -4422,45 +4631,65 @@ const styles = StyleSheet.create({
     minWidth: 20,
     textAlign: 'center',
   },
-  activePowerupIndicator: {
+  powerupIndicatorOverlay: {
     position: 'absolute',
-    top: 140,
-    alignSelf: 'center',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    zIndex: 1100, // powerupButtonsContainer'dan (1050) daha yüksek olmalı
+    elevation: 1100,
+    backgroundColor: 'transparent',
+  },
+  powerupIndicatorContainer: {
+    marginTop: 230,
+    alignItems: 'center',
+    gap: 10, // Birden fazla power-up aktif olduğunda aralarında boşluk olsun
+  },
+  powerupIndicator: {
     backgroundColor: 'rgba(243, 156, 18, 0.95)',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 25,
-    zIndex: 1000,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
   },
-  activePowerupText: {
+  powerupIndicatorText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  shieldIndicator: {
-    position: 'absolute',
-    top: 190,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(52, 152, 219, 0.95)',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    zIndex: 1000,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+  popupOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  shieldIndicatorText: {
+  popupContainer: {
+    backgroundColor: 'rgba(243, 156, 18, 0.95)',
+    paddingVertical: 20,
+    paddingHorizontal: 30,
+    borderRadius: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  popupIcon: {
+    fontSize: 50,
+    marginBottom: 10,
+  },
+  popupMessage: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
   },
